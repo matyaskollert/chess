@@ -1,5 +1,0 @@
-﻿  Main.cpp
-  Render.cpp
-C:\Users\suzuv\Desktop\Coding\C++\Chess\Chess\Textures.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  Generating Code...
-  Chess.vcxproj -> C:\Users\suzuv\Desktop\Coding\C++\Chess\x64\Debug\Chess.exe
