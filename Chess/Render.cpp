@@ -2,6 +2,7 @@
 #include "Render.h"
 #include "Textures.h"
 #include "GameBoard.h"
+
 constexpr int PIECE_SIZE = 60;
 constexpr int BOARD_SIZE = 1000;
 constexpr int BOARD_BORDER_SIZE = 36;
@@ -10,51 +11,28 @@ constexpr int BOARD_X = 0;
 constexpr int BOARD_Y = 0;
 constexpr bool WHITE_DOWN = true;
 
+void Render::renderMainMenu(SDL_Renderer* renderer)
+{
+	SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+	SDL_RenderClear(renderer);
+
+	SDL_Rect startButton{};
+	startButton.w = 200;
+	startButton.h = 50;
+	startButton.x = WINDOW_SIZE_W / 2 - (startButton.w / 2);
+	startButton.y = WINDOW_SIZE_H / 2 - (startButton.h / 2);
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderFillRect(renderer, &startButton);
+
+
+	SDL_RenderPresent(renderer);
+}
+
 int Render::updateBoard(SDL_Renderer* renderer, GameBoard& board)
 {
-	SDL_Rect destPiece;
-	SDL_Rect destValid;
-	destPiece.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2;
-	destPiece.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2;
-	destPiece.h = PIECE_SIZE;
-	destPiece.w = PIECE_SIZE;
-	destValid.h = PIECE_SIZE;
-	destValid.w = PIECE_SIZE;
-
-	SDL_RenderCopy(renderer, m_board, NULL, NULL);
-	char pieceChar;
-
-	for (int row = 0; row < 8; row++)
-	{
-		for (int col = 0; col < 8; col++)
-		{
-			destPiece.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * col;
-			destPiece.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * row;
-			if (WHITE_DOWN) {
-				pieceChar = board.m_boardArray[7 - row][col];
-				destValid.x = destPiece.x;
-				destValid.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * (7 - row);
-			}
-			else {
-				pieceChar = board.m_boardArray[row][7 - col];
-				destValid.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * (7 - col);
-				destValid.y = destPiece.y;
-			}
-			int n = convertCharToIndex(pieceChar);
-
-			if (board.m_selectedFigure != 0 && board.m_validMoveArray[board.m_selectedSquare.row][board.m_selectedSquare.col][row][col]) {
-				SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
-				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-				SDL_RenderFillRect(renderer, &destValid);
-			}
-			if (n == -1) {
-				continue;
-			}
-
-			SDL_RenderCopy(renderer, m_pieces[n], NULL, &destPiece);
-
-		}
-	}
+	renderBackBoard(renderer);
+	renderPieces(renderer, board);
 	SDL_RenderPresent(renderer);
 	return 0;
 }
@@ -67,10 +45,8 @@ int Render::renderStartGame(SDL_Renderer* renderer, GameBoard& board)
 	return 0;
 }
 
-
-
-int Render::checkForInput(int x, int y, GameBoard& board, SDL_Renderer* renderer) {
-	//mouse inside the board
+int Render::checkGameInput(int x, int y, GameBoard& board, SDL_Renderer* renderer) {
+	//mouse outside the board
 	if (x < BOARD_X + BOARD_BORDER_SIZE || x > BOARD_X + BOARD_SIZE - BOARD_BORDER_SIZE || y < BOARD_Y + BOARD_BORDER_SIZE || y > BOARD_Y + BOARD_SIZE - BOARD_BORDER_SIZE) {
 
 	}
@@ -95,6 +71,63 @@ int Render::checkForInput(int x, int y, GameBoard& board, SDL_Renderer* renderer
 		SDL_RenderPresent(renderer);*/
 	}
 	return 0;
+}
+
+void Render::renderBackBoard(SDL_Renderer* renderer) {
+	SDL_Rect boardDest{};
+	boardDest.x = BOARD_X;
+	boardDest.y = BOARD_Y;
+	boardDest.w = BOARD_SIZE;
+	boardDest.h = BOARD_SIZE;
+
+	SDL_RenderCopy(renderer, m_board, NULL, &boardDest);
+}
+
+void Render::renderPieces(SDL_Renderer* renderer, GameBoard& board) {
+	char pieceChar;
+
+	SDL_Rect destPiece;
+	SDL_Rect destValid;
+	destPiece.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2;
+	destPiece.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2;
+	destPiece.h = PIECE_SIZE;
+	destPiece.w = PIECE_SIZE;
+	destValid.h = PIECE_SIZE;
+	destValid.w = PIECE_SIZE;
+
+	for (int row = 0; row < 8; row++)
+	{
+		for (int col = 0; col < 8; col++)
+		{
+			destPiece.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * col;
+			destPiece.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * row;
+			if (WHITE_DOWN) {
+				pieceChar = board.m_boardArray[7 - row][col];
+				destValid.x = destPiece.x;
+				destValid.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * (7 - row);
+			}
+			else {
+				pieceChar = board.m_boardArray[row][7 - col];
+				destValid.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * (7 - col);
+				destValid.y = destPiece.y;
+			}
+			int n = convertCharToIndex(pieceChar);
+
+			if (board.m_selectedFigure != 0 && board.m_validMoveArray[board.m_selectedSquare.row][board.m_selectedSquare.col][row][col]) {
+				SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+				SDL_RenderDrawRect(renderer, &destValid);
+				SDL_RenderSetScale(renderer, 1, 1);
+
+			}
+			if (n == -1) {
+				continue;
+			}
+
+			SDL_RenderCopy(renderer, m_pieces[n], NULL, &destPiece);
+
+		}
+	}
 }
 
 int Render::convertCharToIndex(char piece) {
