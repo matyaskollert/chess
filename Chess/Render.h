@@ -18,5 +18,6 @@ private:
 	void renderPieces(SDL_Renderer* renderer, GameBoard& board);
 	std::vector<SDL_Texture*> m_pieces;
 	SDL_Texture* m_board;
+	SDL_Texture* m_menuTexture;
 };
 

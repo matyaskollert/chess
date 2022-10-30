@@ -13,18 +13,28 @@ constexpr bool WHITE_DOWN = true;
 
 void Render::renderMainMenu(SDL_Renderer* renderer)
 {
+	m_menuTexture = loadMenu(renderer);
 	SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
 	SDL_RenderClear(renderer);
 
-	SDL_Rect startButton{};
-	startButton.w = 200;
-	startButton.h = 50;
-	startButton.x = WINDOW_SIZE_W / 2 - (startButton.w / 2);
-	startButton.y = WINDOW_SIZE_H / 2 - (startButton.h / 2);
+	SDL_Rect src{};
+	src.w = 210;
+	src.h = 56;
+	src.x = 0;
+	src.y = 0;
 
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderFillRect(renderer, &startButton);
+	SDL_Rect dest{};
+	dest.w = 210;
+	dest.h = 56;
+	dest.x = WINDOW_SIZE_W / 2 - (dest.w / 2);
+	dest.y = WINDOW_SIZE_H / 2 - (dest.h / 2) - 50;
 
+	SDL_RenderCopy(renderer, m_menuTexture, &src, &dest);
+	
+	src.y = src.h;
+	dest.y = dest.y + 100;
+	
+	SDL_RenderCopy(renderer, m_menuTexture, &src, &dest);
 
 	SDL_RenderPresent(renderer);
 }

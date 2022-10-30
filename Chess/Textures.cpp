@@ -2,6 +2,11 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+SDL_Texture* loadMenu(SDL_Renderer* renderer)
+{
+	return IMG_LoadTexture(renderer, "./Textures/menu.png");
+}
+
 std::vector<SDL_Texture*> loadPieces(SDL_Renderer* renderer)
 {
 	std::vector<SDL_Texture*> pieces;
