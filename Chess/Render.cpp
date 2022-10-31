@@ -10,10 +10,26 @@ constexpr int BOARD_SKIP = (BOARD_SIZE - (BOARD_BORDER_SIZE * 2)) / 8;
 constexpr int BOARD_X = 0;
 constexpr int BOARD_Y = 0;
 constexpr bool WHITE_DOWN = true;
+constexpr SDL_Rect START_BUTTON_SRC = { 0,0,210,56 };
+constexpr SDL_Rect START_BUTTON_DEST = { WINDOW_SIZE_W / 2 - (210 / 2),WINDOW_SIZE_H / 2 - (56 / 2) - 50,210,56 };
+constexpr SDL_Rect EXIT_BUTTON_SRC = { START_BUTTON_SRC.x, START_BUTTON_SRC.h, START_BUTTON_SRC.w, START_BUTTON_SRC.h };
+constexpr SDL_Rect EXIT_BUTTON_DEST = { START_BUTTON_DEST.x, START_BUTTON_DEST.y + 100, START_BUTTON_DEST.w, START_BUTTON_DEST.h };
+
+void Render::renderMainMenuFirstTime(SDL_Renderer* renderer)
+{
+	m_menuTexture = loadMenu(renderer);
+	SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+	SDL_RenderClear(renderer);
+
+	SDL_RenderCopy(renderer, m_menuTexture, &START_BUTTON_SRC, &START_BUTTON_DEST);
+
+	SDL_RenderCopy(renderer, m_menuTexture, &EXIT_BUTTON_SRC, &EXIT_BUTTON_DEST);
+
+	SDL_RenderPresent(renderer);
+}
 
 void Render::renderMainMenu(SDL_Renderer* renderer)
 {
-	m_menuTexture = loadMenu(renderer);
 	SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
 	SDL_RenderClear(renderer);
 
@@ -30,13 +46,26 @@ void Render::renderMainMenu(SDL_Renderer* renderer)
 	dest.y = WINDOW_SIZE_H / 2 - (dest.h / 2) - 50;
 
 	SDL_RenderCopy(renderer, m_menuTexture, &src, &dest);
-	
+
 	src.y = src.h;
 	dest.y = dest.y + 100;
-	
+
 	SDL_RenderCopy(renderer, m_menuTexture, &src, &dest);
 
 	SDL_RenderPresent(renderer);
+}
+
+void Render::checkMenuInput(int x, int y, SDL_Renderer* renderer, State& state, GameBoard& board)
+{
+	if (x >= START_BUTTON_DEST.x && x <= START_BUTTON_DEST.x + START_BUTTON_DEST.w && y >= START_BUTTON_DEST.y && y <= START_BUTTON_DEST.y + START_BUTTON_DEST.h) {
+		state = GAME;
+		renderStartGame(renderer, board);
+		std::cout << "Pressed the start button\n";
+	}
+	else if (x >= EXIT_BUTTON_DEST.x && x <= EXIT_BUTTON_DEST.x + EXIT_BUTTON_DEST.w && y >= EXIT_BUTTON_DEST.y && y <= EXIT_BUTTON_DEST.y + EXIT_BUTTON_DEST.h) {
+		state = EXIT;
+		std::cout << "Pressed the exit button\n";
+	}
 }
 
 int Render::updateBoard(SDL_Renderer* renderer, GameBoard& board)
@@ -51,6 +80,8 @@ int Render::renderStartGame(SDL_Renderer* renderer, GameBoard& board)
 {
 	m_board = loadBoard(renderer);
 	m_pieces = loadPieces(renderer);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_RenderClear(renderer);
 	updateBoard(renderer, board);
 	return 0;
 }

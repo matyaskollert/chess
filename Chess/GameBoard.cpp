@@ -32,6 +32,7 @@ char GameBoard::checkForInput(int col, int row)
 	if (m_validMoveArray[m_selectedSquare.row][m_selectedSquare.col][row][col]) {
 		//has white picked up a figure?
 		if (m_whitePickedUp) {
+			m_whiteChecked = false;
 			m_boardArray[row][col] = m_selectedFigure;
 			if (checkCheck(true) == 1) {
 				m_blackChecked = true;
@@ -73,6 +74,7 @@ char GameBoard::checkForInput(int col, int row)
 		}
 		//has black picked up a figure?
 		else if (m_blackPickedUp) {
+			m_blackChecked = false;
 			m_boardArray[row][col] = m_selectedFigure;
 			if (checkCheck(false) == -1) {
 				m_whiteChecked = true;
@@ -364,7 +366,7 @@ bool GameBoard::kingValidMove(int row, int col, bool white)
 			m_whiteKingSquare = lastKing;
 			return !(check1 || check2);
 		}
-		else if (condLong && m_pickedSquare.col + 2 == col && m_boardArray[row][col - 1] == 0 && m_boardArray[row][col + 1] == 0 && m_boardArray[row][col] == 0) {
+		else if (condLong && m_pickedSquare.col - 2 == col && m_boardArray[row][col + 1] == 0 && m_boardArray[row][col - 1] == 0 && m_boardArray[row][col] == 0) {
 			const Square lastKing = m_whiteKingSquare;
 			m_whiteKingSquare = { row, col + 1 };
 			const bool check1 = checkCheck(!white);

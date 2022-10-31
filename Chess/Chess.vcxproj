@@ -136,6 +136,7 @@
     <ClCompile Include="Textures.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common.h" />
     <ClInclude Include="GameBoard.h" />
     <ClInclude Include="Render.h" />
     <ClInclude Include="Textures.h" />
