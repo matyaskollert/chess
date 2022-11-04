@@ -1,11 +1,10 @@
-﻿  GameBoard.cpp
-  GameEngine.cpp
+﻿  GameEngine.cpp
   Main.cpp
   Render.cpp
 C:\Users\suzuv\Desktop\Coding\C++\Chess\Chess\Textures.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   Generating code
-  13 of 152 functions ( 8.6%) were compiled, the rest were copied from previous compilation.
-    5 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+  0 of 152 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Chess.vcxproj -> C:\Users\suzuv\Desktop\Coding\C++\Chess\x64\Release\Chess.exe

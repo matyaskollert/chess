@@ -115,36 +115,6 @@ int  GameEngine::convertPieceToValue(char piece) {
 	}
 }
 
-int GameEngine::negaMax(int depth, GameBoard& board, bool white) {
-	int i = white ? 1 : -1;
-	if (depth == 0) {
-		calculateEvaluation(board.m_boardArray);
-		return i * m_evaluation;
-	}
-	int max = -999999999;
-	PairPair pieceMax{};
-	for (int row = 0; row < 8; row++) {
-		for (int col = 0; col < 8; col++) {
-			if (board.m_boardArray[row][col] != 0) {
-				for (int moveRow = 0; moveRow < 8; moveRow++) {
-					for (int moveCol = 0; moveCol < 8; moveCol++) {
-						if (board.m_validMoveArray[row][col][moveRow][moveCol]) {
-							GameBoard b = { board };
-							b.checkForInput(row, col);
-							b.checkForInput(moveRow, moveCol);
-							int score = -negaMax(depth - 1, b, b.m_whiteMove);
-							if (score > max) {
-								max = score;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return max;
-}
-
 PairPair GameEngine::negaMaxRoot(int depth, GameBoard& board, bool white)
 {
 	int max = -999999999;
@@ -175,13 +145,14 @@ PairPair GameEngine::negaMaxRoot(int depth, GameBoard& board, bool white)
 	return pieceMax;
 }
 
-int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, int beta) {
+int GameEngine::negaMax(int depth, GameBoard& board, bool white) {
 	int i = white ? 1 : -1;
 	if (depth == 0) {
 		calculateEvaluation(board.m_boardArray);
 		return i * m_evaluation;
 	}
 	int max = -999999999;
+	PairPair pieceMax{};
 	for (int row = 0; row < 8; row++) {
 		for (int col = 0; col < 8; col++) {
 			if (board.m_boardArray[row][col] != 0) {
@@ -191,12 +162,9 @@ int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, in
 							GameBoard b = { board };
 							b.checkForInput(row, col);
 							b.checkForInput(moveRow, moveCol);
-							int score = -alphaBeta(depth - 1, b, b.m_whiteMove, -beta, -alpha);
-							if (score >= beta) {
-								return beta;
-							}
-							if (score > alpha) {
-								alpha = score;
+							int score = -negaMax(depth - 1, b, b.m_whiteMove);
+							if (score > max) {
+								max = score;
 							}
 						}
 					}
@@ -204,7 +172,7 @@ int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, in
 			}
 		}
 	}
-	return alpha;
+	return max;
 }
 
 PairPair GameEngine::alphaBetaRoot(int depth, GameBoard& board, bool white) {
@@ -237,4 +205,36 @@ PairPair GameEngine::alphaBetaRoot(int depth, GameBoard& board, bool white) {
 		}
 	}
 	return ret;
+}
+
+int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, int beta) {
+	int i = white ? 1 : -1;
+	if (depth == 0) {
+		calculateEvaluation(board.m_boardArray);
+		return i * m_evaluation;
+	}
+	int max = -999999999;
+	for (int row = 0; row < 8; row++) {
+		for (int col = 0; col < 8; col++) {
+			if (board.m_boardArray[row][col] != 0) {
+				for (int moveRow = 0; moveRow < 8; moveRow++) {
+					for (int moveCol = 0; moveCol < 8; moveCol++) {
+						if (board.m_validMoveArray[row][col][moveRow][moveCol]) {
+							GameBoard b = { board };
+							b.checkForInput(row, col);
+							b.checkForInput(moveRow, moveCol);
+							int score = -alphaBeta(depth - 1, b, b.m_whiteMove, -beta, -alpha);
+							if (score >= beta) {
+								return beta;
+							}
+							if (score > alpha) {
+								alpha = score;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return alpha;
 }

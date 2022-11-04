@@ -10,6 +10,7 @@ constexpr int BOARD_SKIP = (BOARD_SIZE - (BOARD_BORDER_SIZE * 2)) / 8;
 constexpr int BOARD_X = 0;
 constexpr int BOARD_Y = 0;
 constexpr bool WHITE_DOWN = true;
+
 constexpr SDL_Rect START_BUTTON_SRC = { 0,0,210,56 };
 constexpr SDL_Rect START_BUTTON_DEST = { WINDOW_SIZE_W / 2 - (210 / 2),WINDOW_SIZE_H / 2 - (56 / 2) - 50,210,56 };
 constexpr SDL_Rect EXIT_BUTTON_SRC = { START_BUTTON_SRC.x, START_BUTTON_SRC.h, START_BUTTON_SRC.w, START_BUTTON_SRC.h };
