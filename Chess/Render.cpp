@@ -15,6 +15,10 @@ constexpr SDL_Rect START_BUTTON_DEST = { WINDOW_SIZE_W / 2 - (210 / 2),WINDOW_SI
 constexpr SDL_Rect EXIT_BUTTON_SRC = { START_BUTTON_SRC.x, START_BUTTON_SRC.h, START_BUTTON_SRC.w, START_BUTTON_SRC.h };
 constexpr SDL_Rect EXIT_BUTTON_DEST = { START_BUTTON_DEST.x, START_BUTTON_DEST.y + 100, START_BUTTON_DEST.w, START_BUTTON_DEST.h };
 
+Render::Render() {
+	m_engine = {};
+}
+
 void Render::renderMainMenuFirstTime(SDL_Renderer* renderer)
 {
 	m_menuTexture = loadMenu(renderer);
@@ -100,8 +104,16 @@ int Render::checkGameInput(int x, int y, GameBoard& board, SDL_Renderer* rendere
 		else {
 			col = 7 - col;
 		}
-		char pieceChar = board.checkForInput(col, row);
+		char pieceChar = board.checkForInput(row, col);
 		updateBoard(renderer, board);
+		//m_engine.getEvaluation(board);
+		if (!board.m_whiteMove) {
+			PairPair pp = m_engine.getBestMove(board);
+			board.checkForInput(pp.x.x, pp.x.y);
+			board.checkForInput(pp.y.x, pp.y.y);
+			updateBoard(renderer, board);
+		}
+
 		/*int n = convertCharToIndex(pieceChar);
 		SDL_Rect dest;
 		dest.x = x - PIECE_SIZE / 2;

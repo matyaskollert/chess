@@ -1,6 +1,7 @@
 #include "GameBoard.h"
 #include <array>
 #include <iostream>
+#include <chrono>
 
 GameBoard::GameBoard() {
 	m_boardArray = { {
@@ -12,13 +13,24 @@ GameBoard::GameBoard() {
 		{0,0,0,0,0,0,0,0},
 		{'p','p','p','p','p','p','p','p'},
 		{'r','n','b','q','k','b','n','r'}
-
 	} };
 	resetValidMoves();
 	getValidMoves(true);
 }
 
-char GameBoard::checkForInput(int col, int row)
+int GameBoard::countFigures() {
+	int count = 0;
+	for (const auto& i : m_boardArray) {
+		for (const auto& j : i) {
+			if (j != 0) {
+				count++;
+			}
+		}
+	}
+	return count;
+}
+
+char GameBoard::checkForInput(int row, int col)
 {
 	auto targetPosition = m_boardArray[row][col];
 	if (m_selectedSquare.row == row && m_selectedSquare.col == col) {
@@ -32,86 +44,11 @@ char GameBoard::checkForInput(int col, int row)
 	if (m_validMoveArray[m_selectedSquare.row][m_selectedSquare.col][row][col]) {
 		//has white picked up a figure?
 		if (m_whitePickedUp) {
-			m_whiteChecked = false;
-			m_boardArray[row][col] = m_selectedFigure;
-			if (checkCheck(true) == 1) {
-				m_blackChecked = true;
-			}
-			//if the king moved, update special variable
-			if (m_selectedFigure == 'K') {
-				m_whiteKingSquare = { row, col };
-			}
-			//if the king or rook moved, update castling possibilities
-			if (m_selectedFigure == 'R' || m_selectedFigure == 'K') {
-				m_whiteLongCastle = false;
-				m_whiteShortCastle = false;
-			}
-			//is white castling short? move rook as well
-			if (m_selectedFigure == 'K' && col == m_selectedSquare.col + 2) {
-				m_boardArray[row][col - 1] = 'R';
-				m_boardArray[row][col + 1] = 0;
-			}
-			//is white castling short? move rook as well
-			if (m_selectedFigure == 'K' && col == m_selectedSquare.col - 2) {
-				m_boardArray[row][col + 1] = 'R';
-				m_boardArray[row][col - 2] = 0;
-			}
-			if (m_selectedFigure == 'P' && m_enPassantAccepted) {
-				m_boardArray[row - 1][col] = 0;
-				m_enPassantAccepted = false;
-			}
-			if (m_selectedFigure == 'P' && row == m_selectedSquare.row + 2) {
-				m_enPassantSquare = { row - 1, col };
-				m_enPassant = true;
-			}
-			else {
-				m_enPassant = false;
-			}
-			m_whiteMove = false;
-			m_whitePickedUp = false;
-			resetValidMoves();
-			getValidMoves(false);
+			handleWhiteMove(row, col);
 		}
 		//has black picked up a figure?
 		else if (m_blackPickedUp) {
-			m_blackChecked = false;
-			m_boardArray[row][col] = m_selectedFigure;
-			if (checkCheck(false) == -1) {
-				m_whiteChecked = true;
-			}
-			if (m_selectedFigure == 'k') {
-				m_blackKingSquare = { row, col };
-			}
-			if (m_selectedFigure == 'r' || m_selectedFigure == 'k') {
-				m_blackLongCastle = false;
-				m_blackShortCastle = false;
-			}
-			//is black castling short? move rook as well
-			if (m_selectedFigure == 'k' && col == m_selectedSquare.col + 2) {
-				m_boardArray[row][col - 1] = 'r';
-				m_boardArray[row][col + 1] = 0;
-			}
-			//is black castling short? move rook as well
-			if (m_selectedFigure == 'k' && col == m_selectedSquare.col - 2) {
-				m_boardArray[row][col + 1] = 'r';
-				m_boardArray[row][col - 2] = 0;
-			}
-			if (m_selectedFigure == 'p' && m_enPassantAccepted) {
-				m_boardArray[row + 1][col] = 0;
-				m_enPassantAccepted = false;
-			}
-			if (m_selectedFigure == 'p' && row == m_selectedSquare.row - 2) {
-				m_enPassantSquare = { row + 1, col };
-
-				m_enPassant = true;
-			}
-			else {
-				m_enPassant = false;
-			}
-			m_whiteMove = true;
-			m_blackPickedUp = false;
-			resetValidMoves();
-			getValidMoves(true);
+			handleBlackMove(row, col);
 		}
 	}
 	else if (targetPosition != 0 && !m_whitePickedUp && !m_blackPickedUp) {
@@ -129,6 +66,91 @@ char GameBoard::checkForInput(int col, int row)
 		}
 	}
 	return targetPosition;
+}
+
+void GameBoard::handleWhiteMove(int& row, int& col)
+{
+	m_whiteChecked = false;
+	m_boardArray[row][col] = m_selectedFigure;
+	if (checkCheck(true) == 1) {
+		m_blackChecked = true;
+	}
+	//if the king moved, update special variable
+	if (m_selectedFigure == 'K') {
+		m_whiteKingSquare = { row, col };
+	}
+	//if the king or rook moved, update castling possibilities
+	if (m_selectedFigure == 'R' || m_selectedFigure == 'K') {
+		m_whiteLongCastle = false;
+		m_whiteShortCastle = false;
+	}
+	//is white castling short? move rook as well
+	if (m_selectedFigure == 'K' && col == m_selectedSquare.col + 2) {
+		m_boardArray[row][col - 1] = 'R';
+		m_boardArray[row][col + 1] = 0;
+	}
+	//is white castling short? move rook as well
+	if (m_selectedFigure == 'K' && col == m_selectedSquare.col - 2) {
+		m_boardArray[row][col + 1] = 'R';
+		m_boardArray[row][col - 2] = 0;
+	}
+	if (m_selectedFigure == 'P' && m_enPassantAccepted) {
+		m_boardArray[row - 1][col] = 0;
+		m_enPassantAccepted = false;
+	}
+	if (m_selectedFigure == 'P' && row == m_selectedSquare.row + 2) {
+		m_enPassantSquare = { row - 1, col };
+		m_enPassant = true;
+	}
+	else {
+		m_enPassant = false;
+	}
+	m_whiteMove = false;
+	m_whitePickedUp = false;
+	resetValidMoves();
+	getValidMoves(false);
+}
+
+void GameBoard::handleBlackMove(int& row, int& col)
+{
+	m_blackChecked = false;
+	m_boardArray[row][col] = m_selectedFigure;
+	if (checkCheck(false) == -1) {
+		m_whiteChecked = true;
+	}
+	if (m_selectedFigure == 'k') {
+		m_blackKingSquare = { row, col };
+	}
+	if (m_selectedFigure == 'r' || m_selectedFigure == 'k') {
+		m_blackLongCastle = false;
+		m_blackShortCastle = false;
+	}
+	//is black castling short? move rook as well
+	if (m_selectedFigure == 'k' && col == m_selectedSquare.col + 2) {
+		m_boardArray[row][col - 1] = 'r';
+		m_boardArray[row][col + 1] = 0;
+	}
+	//is black castling short? move rook as well
+	if (m_selectedFigure == 'k' && col == m_selectedSquare.col - 2) {
+		m_boardArray[row][col + 1] = 'r';
+		m_boardArray[row][col - 2] = 0;
+	}
+	if (m_selectedFigure == 'p' && m_enPassantAccepted) {
+		m_boardArray[row + 1][col] = 0;
+		m_enPassantAccepted = false;
+	}
+	if (m_selectedFigure == 'p' && row == m_selectedSquare.row - 2) {
+		m_enPassantSquare = { row + 1, col };
+
+		m_enPassant = true;
+	}
+	else {
+		m_enPassant = false;
+	}
+	m_whiteMove = true;
+	m_blackPickedUp = false;
+	resetValidMoves();
+	getValidMoves(true);
 }
 
 void GameBoard::getValidMoves(bool white)
@@ -201,7 +223,6 @@ void GameBoard::resetValidMoves()
 
 bool GameBoard::checkValidMove(int targetRow, int targetCol)
 {
-
 	if (m_pickedSquare.col == targetCol && m_pickedSquare.row == targetRow) {
 		return false;
 	}
@@ -241,6 +262,7 @@ bool GameBoard::checkValidMove(int targetRow, int targetCol)
 	default:
 		return false;
 	}
+
 }
 
 bool GameBoard::pawnValidMove(int row, int col, bool white)

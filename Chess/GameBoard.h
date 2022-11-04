@@ -11,7 +11,7 @@ class GameBoard
 public:
 	GameBoard();
 	//handle user input
-	char checkForInput(int col, int row);
+	char checkForInput(int row, int col);
 	//stores the current game position
 	std::array<std::array<char, 8>, 8> m_boardArray;
 	//stores all the valid moves for the currently picked up figure
@@ -20,8 +20,13 @@ public:
 	char m_selectedFigure = 0;
 	//the square at which the currently selected figure is
 	Square m_selectedSquare = { 0,0 };
-private:
 
+	//is it white's move
+	bool m_whiteMove = true;
+
+	int countFigures();
+
+private:
 	//currently picked up figure in valid checking
 	char m_pickedUp = 0;
 	//the square at which the currently picked up figure is in valid checking
@@ -42,8 +47,7 @@ private:
 	bool m_blackShortCastle = true;
 	//can black long castle
 	bool m_blackLongCastle = true;
-	//is it white's move
-	bool m_whiteMove = true;
+
 	//has white picked up a figure
 	bool m_whitePickedUp = false;
 	//has black picked up a figure
@@ -53,7 +57,8 @@ private:
 	Square m_enPassantSquare = { 0,0 };
 	bool m_enPassantAccepted = false;
 
-
+	void handleWhiteMove(int& row, int& col);
+	void handleBlackMove(int& row, int& col);
 	void getValidMoves(bool white);
 	void resetValidMoves();
 	bool checkValidMove(int row, int col);
