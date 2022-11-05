@@ -2,7 +2,6 @@
 #include <vector>
 #include "SDL.h"
 #include "GameBoard.h"
-#include "GameEngine.h"
 #include "Common.h"
 
 constexpr int WINDOW_SIZE_W = 1200;
@@ -10,7 +9,6 @@ constexpr int WINDOW_SIZE_H = 1000;
 
 class Render {
 public:
-	Render();
 	int updateBoard(SDL_Renderer* renderer, GameBoard& board);
 	int checkGameInput(int x, int y, GameBoard& board, SDL_Renderer* renderer);
 	int renderStartGame(SDL_Renderer* renderer, GameBoard& board);
@@ -24,7 +22,5 @@ private:
 	std::vector<SDL_Texture*> m_pieces;
 	SDL_Texture* m_board;
 	SDL_Texture* m_menuTexture;
-
-	GameEngine m_engine;
 };
 

@@ -134,8 +134,12 @@ void GameBoard::handleWhiteMove(int& row, int& col)
 	}
 	//if the king or rook moved, update castling possibilities
 	if (m_selectedFigure == 'R' || m_selectedFigure == 'K') {
-		m_whiteLongCastle = false;
-		m_whiteShortCastle = false;
+		if (m_selectedSquare.col == 0) {
+			m_whiteLongCastle = false;
+		}
+		else if (m_selectedSquare.col == 7) {
+			m_whiteShortCastle = false;
+		}
 	}
 	//is white castling short? move rook as well
 	if (m_selectedFigure == 'K' && col == m_selectedSquare.col + 2) {
@@ -181,8 +185,12 @@ void GameBoard::handleBlackMove(int& row, int& col)
 		m_blackKingSquare = { row, col };
 	}
 	if (m_selectedFigure == 'r' || m_selectedFigure == 'k') {
-		m_blackLongCastle = false;
-		m_blackShortCastle = false;
+		if (m_selectedSquare.col == 0) {
+			m_blackLongCastle = false;
+		}
+		else if (m_selectedSquare.col == 7) {
+			m_blackShortCastle = false;
+		}
 	}
 	//is black castling short? move rook as well
 	if (m_selectedFigure == 'k' && col == m_selectedSquare.col + 2) {
@@ -337,7 +345,7 @@ bool GameBoard::pawnValidMove(int row, int col, bool white)
 		else if ((m_pickedSquare.col == (col + 1) || m_pickedSquare.col == (col - 1)) && row == (m_pickedSquare.row - 1) && std::isupper(m_boardArray[row][col])) {
 			return true;
 		}
-		else if (m_enPassant && m_enPassantSquare.row == row && m_enPassantSquare.col == col && m_pickedSquare.row == row + 1 && m_enPassantSquare.col == col && std::isupper(m_boardArray[row + 1][col])) {
+		else if (m_enPassant && m_enPassantSquare.row == row && m_enPassantSquare.col == col && m_pickedSquare.row == row + 1 && m_pickedSquare.col == col && std::isupper(m_boardArray[row + 1][col])) {
 			m_enPassantAccepted = true;
 			return true;
 		}
@@ -353,7 +361,7 @@ bool GameBoard::pawnValidMove(int row, int col, bool white)
 		else if ((m_pickedSquare.col == (col + 1) || m_pickedSquare.col == (col - 1)) && row == (m_pickedSquare.row + 1) && std::islower(m_boardArray[row][col])) {
 			return true;
 		}
-		else if (m_enPassant && m_enPassantSquare.row == row && m_enPassantSquare.col == col && m_pickedSquare.row == row - 1 && m_enPassantSquare.col == col && std::islower(m_boardArray[row - 1][col])) {
+		else if (m_enPassant && m_enPassantSquare.row == row && m_enPassantSquare.col == col && m_pickedSquare.row == row - 1 && m_pickedSquare.col == col && std::islower(m_boardArray[row - 1][col])) {
 			m_enPassantAccepted = true;
 			return true;
 		}

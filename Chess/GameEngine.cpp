@@ -2,8 +2,9 @@
 #include <iostream>
 #include <algorithm>
 #include <chrono>
+#include <thread>
 
-int DEPTH = 4;
+int DEPTH = 2;
 
 GameEngine::GameEngine()
 {
@@ -20,17 +21,27 @@ float GameEngine::getEvaluation(GameBoard& board)
 	return m_evaluation / 100.f;
 }
 
-PairPair GameEngine::getBestMove(GameBoard& board) {
+void GameEngine::getBestMovePromise(GameBoard& board) {
 	if (board.countPieces() < 10) {
-		DEPTH = 5;
+		DEPTH = 3;
 	}
+	std::thread thread([](GameBoard board, GameEngine* e) {
+		std::cout << "new thread \n";
+		auto start = std::chrono::high_resolution_clock::now();
+		auto piece = e->alphaBetaRoot(DEPTH, board, board.m_whiteMove);
+		auto stop = std::chrono::high_resolution_clock::now();
+		std::cout << std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count() << std::endl;
+		std::cout << piece.x.x << "," << piece.x.y << " - " << piece.y.x << "," << piece.y.y << std::endl;
+		e->m_bestMove = piece;
+		e->ready = true;
+		}, board, this);
 
-	auto start = std::chrono::high_resolution_clock::now();
-	auto piece = alphaBetaRoot(DEPTH, board, board.m_whiteMove);
-	auto stop = std::chrono::high_resolution_clock::now();
-	std::cout << std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count() << std::endl;
-	std::cout << piece.x.x << "," << piece.x.y << " - " << piece.y.x << "," << piece.y.y << std::endl;
-	return piece;
+	thread.detach();
+}
+
+PairPair GameEngine::getBestMove() {
+	ready = false;
+	return m_bestMove;
 }
 
 void GameEngine::calculateEvaluation(std::array<std::array<char, 8>, 8> board) {

@@ -9,9 +9,12 @@ class GameEngine
 public:
 	GameEngine();
 	float getEvaluation(GameBoard& board);
-	PairPair getBestMove(GameBoard& board);
+	void getBestMovePromise(GameBoard& board);
+	PairPair getBestMove();
+	bool ready = false;
 private:
 	int m_evaluation;
+	PairPair m_bestMove = {};
 
 	std::array<std::array<int, 8>, 8> pawnWeights = { {
 		{ 0,  0,  0,  0,  0,  0,  0,  0},

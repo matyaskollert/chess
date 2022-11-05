@@ -1,7 +1,6 @@
 #include <iostream>
 #include "Render.h"
 #include "Textures.h"
-#include "GameBoard.h"
 
 constexpr int PIECE_SIZE = 60;
 constexpr int BOARD_SIZE = 1000;
@@ -16,10 +15,6 @@ constexpr SDL_Rect START_BUTTON_DEST = { WINDOW_SIZE_W / 2 - (210 / 2),WINDOW_SI
 constexpr SDL_Rect EXIT_BUTTON_SRC = { START_BUTTON_SRC.x, START_BUTTON_SRC.h, START_BUTTON_SRC.w, START_BUTTON_SRC.h };
 constexpr SDL_Rect EXIT_BUTTON_DEST = { START_BUTTON_DEST.x, START_BUTTON_DEST.y + 100, START_BUTTON_DEST.w, START_BUTTON_DEST.h };
 
-Render::Render() {
-	m_engine = {};
-}
-
 void Render::renderMainMenuFirstTime(SDL_Renderer* renderer)
 {
 	m_menuTexture = loadMenu(renderer);
@@ -30,7 +25,7 @@ void Render::renderMainMenuFirstTime(SDL_Renderer* renderer)
 
 	SDL_RenderCopy(renderer, m_menuTexture, &EXIT_BUTTON_SRC, &EXIT_BUTTON_DEST);
 
-	SDL_RenderPresent(renderer);
+	//SDL_RenderPresent(renderer);
 }
 
 void Render::renderMainMenu(SDL_Renderer* renderer)
@@ -56,8 +51,6 @@ void Render::renderMainMenu(SDL_Renderer* renderer)
 	dest.y = dest.y + 100;
 
 	SDL_RenderCopy(renderer, m_menuTexture, &src, &dest);
-
-	SDL_RenderPresent(renderer);
 }
 
 void Render::checkMenuInput(int x, int y, SDL_Renderer* renderer, State& state, GameBoard& board)
@@ -77,7 +70,6 @@ int Render::updateBoard(SDL_Renderer* renderer, GameBoard& board)
 {
 	renderBackBoard(renderer);
 	renderPieces(renderer, board);
-	SDL_RenderPresent(renderer);
 	return 0;
 }
 
@@ -106,26 +98,6 @@ int Render::checkGameInput(int x, int y, GameBoard& board, SDL_Renderer* rendere
 			col = 7 - col;
 		}
 		char pieceChar = board.checkForInput(row, col);
-		updateBoard(renderer, board);
-		//m_engine.getEvaluation(board);
-		if (!board.m_whiteMove) {
-			PairPair pp = m_engine.getBestMove(board);
-			board.checkForInput(pp.x.x, pp.x.y);
-			board.checkForInput(pp.y.x, pp.y.y);
-			if (board.m_blackPromotion) {
-				board.checkForInput(0, 0);
-			}
-			updateBoard(renderer, board);
-		}
-
-		/*int n = convertCharToIndex(pieceChar);
-		SDL_Rect dest;
-		dest.x = x - PIECE_SIZE / 2;
-		dest.y = y - PIECE_SIZE / 2;
-		dest.w = PIECE_SIZE;
-		dest.h = PIECE_SIZE;
-		SDL_RenderCopy(renderer, m_pieces[n], NULL, &dest);
-		SDL_RenderPresent(renderer);*/
 	}
 	return 0;
 }
