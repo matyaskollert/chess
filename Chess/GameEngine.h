@@ -97,6 +97,8 @@ private:
 	PairPair alphaBetaRoot(int depth, GameBoard& board, bool white);
 	int alphaBeta(int depth, GameBoard& board, bool white, int alpha, int beta);
 
+	int quiesce(GameBoard& board, bool white, int alpha, int beta);
+
 	void calculateEvaluation(std::array<std::array<char, 8>, 8> board);
 
 	int convertPieceToValue(char piece);

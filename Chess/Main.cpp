@@ -19,7 +19,7 @@ void handleGameStates()
 	int x, y;
 	while (running) {
 		SDL_Event e;
-		while (SDL_PollEvent(&e)) {
+		while (SDL_WaitEvent(&e)) {
 			if (e.type == SDL_QUIT) {
 				STATE = EXIT;
 			}

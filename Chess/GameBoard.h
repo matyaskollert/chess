@@ -24,7 +24,12 @@ public:
 	//is it white's move
 	bool m_whiteMove = true;
 
-	int countFigures();
+	bool m_whitePromotion = false;
+	bool m_blackPromotion = false;
+
+	Square m_lastMove = { -1,-1 };
+
+	int countPieces();
 
 private:
 	//currently picked up figure in valid checking

@@ -7,10 +7,10 @@ GameBoard::GameBoard() {
 	m_boardArray = { {
 		{'R','N','B','Q','K','B','N','R'},
 		{'P','P','P','P','P','P','P','P'},
-		{0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0},
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },
 		{'p','p','p','p','p','p','p','p'},
 		{'r','n','b','q','k','b','n','r'}
 	} };
@@ -18,11 +18,13 @@ GameBoard::GameBoard() {
 	getValidMoves(true);
 }
 
-int GameBoard::countFigures() {
+
+
+int GameBoard::countPieces() {
 	int count = 0;
 	for (const auto& i : m_boardArray) {
 		for (const auto& j : i) {
-			if (j != 0) {
+			if (j != 0 && j != 'p' && j != 'P') {
 				count++;
 			}
 		}
@@ -33,6 +35,52 @@ int GameBoard::countFigures() {
 char GameBoard::checkForInput(int row, int col)
 {
 	auto targetPosition = m_boardArray[row][col];
+	if (m_whitePromotion) {
+		m_whitePromotion = false;
+		switch (row) {
+		case 0:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'Q';
+			break;
+		case 1:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'R';
+			break;
+		case 2:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'B';
+			break;
+		case 3:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'N';
+			break;
+		}
+		m_whiteMove = false;
+		m_whitePickedUp = false;
+		resetValidMoves();
+		getValidMoves(false);
+		return m_boardArray[m_selectedSquare.row][m_selectedSquare.col];
+	}
+	if (m_blackPromotion) {
+		m_blackPromotion = false;
+		switch (row) {
+		case 0:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'q';
+			break;
+		case 1:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'r';
+			break;
+		case 2:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'b';
+			break;
+		case 3:
+			m_boardArray[m_selectedSquare.row][m_selectedSquare.col] = 'n';
+			break;
+		}
+		m_whiteMove = true;
+		m_blackPickedUp = false;
+		resetValidMoves();
+		getValidMoves(true);
+		return m_boardArray[m_selectedSquare.row][m_selectedSquare.col];
+	}
+
+
 	if (m_selectedSquare.row == row && m_selectedSquare.col == col) {
 		m_boardArray[row][col] = m_selectedFigure;
 		m_whitePickedUp = false;
@@ -75,6 +123,11 @@ void GameBoard::handleWhiteMove(int& row, int& col)
 	if (checkCheck(true) == 1) {
 		m_blackChecked = true;
 	}
+	if (m_selectedFigure == 'P' && row == 7) {
+		m_whitePromotion = true;
+		m_selectedSquare = { row, col };
+		return;
+	}
 	//if the king moved, update special variable
 	if (m_selectedFigure == 'K') {
 		m_whiteKingSquare = { row, col };
@@ -107,6 +160,7 @@ void GameBoard::handleWhiteMove(int& row, int& col)
 	}
 	m_whiteMove = false;
 	m_whitePickedUp = false;
+	m_lastMove = { row, col };
 	resetValidMoves();
 	getValidMoves(false);
 }
@@ -117,6 +171,11 @@ void GameBoard::handleBlackMove(int& row, int& col)
 	m_boardArray[row][col] = m_selectedFigure;
 	if (checkCheck(false) == -1) {
 		m_whiteChecked = true;
+	}
+	if (m_selectedFigure == 'p' && row == 0) {
+		m_blackPromotion = true;
+		m_selectedSquare = { row, col };
+		return;
 	}
 	if (m_selectedFigure == 'k') {
 		m_blackKingSquare = { row, col };
@@ -149,6 +208,7 @@ void GameBoard::handleBlackMove(int& row, int& col)
 	}
 	m_whiteMove = true;
 	m_blackPickedUp = false;
+	m_lastMove = { row, col };
 	resetValidMoves();
 	getValidMoves(true);
 }
@@ -192,9 +252,9 @@ void GameBoard::getValidMoves(bool white)
 			}
 		}
 	}
-	if (checkMate) {
+	/*if (checkMate) {
 		std::cout << "CHECKMATE\n";
-	}
+	}*/
 }
 
 void GameBoard::resetValidMoves()

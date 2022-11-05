@@ -112,6 +112,9 @@ int Render::checkGameInput(int x, int y, GameBoard& board, SDL_Renderer* rendere
 			PairPair pp = m_engine.getBestMove(board);
 			board.checkForInput(pp.x.x, pp.x.y);
 			board.checkForInput(pp.y.x, pp.y.y);
+			if (board.m_blackPromotion) {
+				board.checkForInput(0, 0);
+			}
 			updateBoard(renderer, board);
 		}
 
@@ -142,12 +145,30 @@ void Render::renderPieces(SDL_Renderer* renderer, GameBoard& board) {
 
 	SDL_Rect destPiece;
 	SDL_Rect destValid;
+	SDL_Rect destLastMove;
 	destPiece.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2;
 	destPiece.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2;
 	destPiece.h = PIECE_SIZE;
 	destPiece.w = PIECE_SIZE;
 	destValid.h = PIECE_SIZE;
 	destValid.w = PIECE_SIZE;
+	destLastMove.h = PIECE_SIZE;
+	destLastMove.w = PIECE_SIZE;
+
+	if (board.m_lastMove.col != -1) {
+		if (WHITE_DOWN) {
+			destLastMove.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * board.m_lastMove.col;
+			destLastMove.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * (7 - board.m_lastMove.row);
+		}
+		else {
+			destLastMove.x = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * (7 - board.m_lastMove.col);
+			destLastMove.y = BOARD_BORDER_SIZE + PIECE_SIZE / 2 + BOARD_SKIP * board.m_lastMove.row;
+		}
+
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_RenderDrawRect(renderer, &destLastMove);
+	}
 
 	for (int row = 0; row < 8; row++)
 	{
@@ -171,7 +192,6 @@ void Render::renderPieces(SDL_Renderer* renderer, GameBoard& board) {
 				SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 				SDL_RenderDrawRect(renderer, &destValid);
-				SDL_RenderSetScale(renderer, 1, 1);
 
 			}
 			if (n == -1) {

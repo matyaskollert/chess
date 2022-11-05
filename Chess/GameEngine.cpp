@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <chrono>
 
-int DEPTH = 3;
+int DEPTH = 4;
 
 GameEngine::GameEngine()
 {
@@ -21,7 +21,7 @@ float GameEngine::getEvaluation(GameBoard& board)
 }
 
 PairPair GameEngine::getBestMove(GameBoard& board) {
-	if (board.countFigures() < 10) {
+	if (board.countPieces() < 10) {
 		DEPTH = 5;
 	}
 
@@ -128,6 +128,9 @@ PairPair GameEngine::negaMaxRoot(int depth, GameBoard& board, bool white)
 							GameBoard b = { board };
 							b.checkForInput(row, col);
 							b.checkForInput(moveRow, moveCol);
+							if (b.m_blackPromotion || b.m_whitePromotion) {
+								b.checkForInput(0, 0);
+							}
 							int score = -negaMax(depth - 1, b, b.m_whiteMove);
 							if (score > max) {
 								max = score;
@@ -162,6 +165,9 @@ int GameEngine::negaMax(int depth, GameBoard& board, bool white) {
 							GameBoard b = { board };
 							b.checkForInput(row, col);
 							b.checkForInput(moveRow, moveCol);
+							if (b.m_blackPromotion || b.m_whitePromotion) {
+								b.checkForInput(0, 0);
+							}
 							int score = -negaMax(depth - 1, b, b.m_whiteMove);
 							if (score > max) {
 								max = score;
@@ -187,6 +193,9 @@ PairPair GameEngine::alphaBetaRoot(int depth, GameBoard& board, bool white) {
 							GameBoard b = { board };
 							b.checkForInput(row, col);
 							b.checkForInput(moveRow, moveCol);
+							if (b.m_blackPromotion || b.m_whitePromotion) {
+								b.checkForInput(0, 0);
+							}
 							int score = -alphaBeta(depth - 1, b, b.m_whiteMove, -beta, -alpha);
 							if (score >= beta) {
 								return { {row, col}, {moveRow, moveCol} };
@@ -210,8 +219,7 @@ PairPair GameEngine::alphaBetaRoot(int depth, GameBoard& board, bool white) {
 int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, int beta) {
 	int i = white ? 1 : -1;
 	if (depth == 0) {
-		calculateEvaluation(board.m_boardArray);
-		return i * m_evaluation;
+		return quiesce(board, white, alpha, beta);
 	}
 	int max = -999999999;
 	for (int row = 0; row < 8; row++) {
@@ -223,7 +231,50 @@ int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, in
 							GameBoard b = { board };
 							b.checkForInput(row, col);
 							b.checkForInput(moveRow, moveCol);
+							if (b.m_blackPromotion || b.m_whitePromotion) {
+								b.checkForInput(0, 0);
+							}
 							int score = -alphaBeta(depth - 1, b, b.m_whiteMove, -beta, -alpha);
+							if (score >= beta) {
+								return beta;
+							}
+							if (score > alpha) {
+								alpha = score;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return alpha;
+}
+
+int GameEngine::quiesce(GameBoard& board, bool white, int alpha, int beta) {
+	const int i = white ? 1 : -1;
+	calculateEvaluation(board.m_boardArray);
+	const int stand_pat = i * m_evaluation;
+
+	if (stand_pat >= beta) {
+		return beta;
+	}
+	if (alpha < stand_pat) {
+		alpha = stand_pat;
+	}
+
+	for (int row = 0; row < 8; row++) {
+		for (int col = 0; col < 8; col++) {
+			if (board.m_boardArray[row][col] != 0) {
+				for (int moveRow = 0; moveRow < 8; moveRow++) {
+					for (int moveCol = 0; moveCol < 8; moveCol++) {
+						if (((white && std::islower(board.m_boardArray[moveRow][moveCol])) || (!white && std::isupper(board.m_boardArray[moveRow][moveCol]))) && board.m_validMoveArray[row][col][moveRow][moveCol]) {
+							GameBoard b = { board };
+							b.checkForInput(row, col);
+							b.checkForInput(moveRow, moveCol);
+							if (b.m_blackPromotion || b.m_whitePromotion) {
+								b.checkForInput(0, 0);
+							}
+							int score = -quiesce(b, b.m_whiteMove, -beta, -alpha);
 							if (score >= beta) {
 								return beta;
 							}
