@@ -32,22 +32,6 @@ void handleGameEvents(SDL_Event& e, int& x, int& y) {
 			SDL_Delay(150);
 		}
 	}
-	else if (ENABLE_AI && BOARD.m_whiteMove == !PLAYER_WHITE && !AI_THINKING) {
-		m_engine.getBestMovePromise(BOARD);
-		AI_THINKING = true;
-	}
-	else if (ENABLE_AI && BOARD.m_whiteMove == !PLAYER_WHITE && AI_THINKING) {
-		if (m_engine.ready) {
-			const auto pp = m_engine.getBestMove();
-			BOARD.checkForInput(pp.x.x, pp.x.y);
-			BOARD.checkForInput(pp.y.x, pp.y.y);
-			if (BOARD.m_blackPromotion) {
-				BOARD.checkForInput(0, 0);
-			}
-			AI_THINKING = false;
-		}
-	}
-	RENDER.updateBoard(RENDERER, BOARD);
 }
 
 
@@ -88,19 +72,42 @@ void handleGameStates()
 			}
 		}
 
-		ImGui_ImplSDLRenderer_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
+		if (STATE == GAME) {
+			if (ENABLE_AI && BOARD.m_whiteMove == !PLAYER_WHITE && !AI_THINKING) {
+				m_engine.getBestMovePromise(BOARD);
+				AI_THINKING = true;
+			}
+			else if (ENABLE_AI && BOARD.m_whiteMove == !PLAYER_WHITE && AI_THINKING) {
+				if (m_engine.ready) {
+					const auto pp = m_engine.getBestMove();
+					BOARD.checkForInput(pp.x.x, pp.x.y);
+					BOARD.checkForInput(pp.y.x, pp.y.y);
+					if (BOARD.m_blackPromotion) {
+						BOARD.checkForInput(0, 0);
+					}
+					AI_THINKING = false;
+				}
+			}
+			RENDER.updateBoard(RENDERER, BOARD);
 
-		ImGui::Begin("Main GUI");
 
-		ImGui::Checkbox("Emable AI", &ENABLE_AI);
-		ImGui::Checkbox("Player White", &PLAYER_WHITE);
+			ImGui_ImplSDLRenderer_NewFrame();
+			ImGui_ImplSDL2_NewFrame();
+			ImGui::NewFrame();
 
-		ImGui::End();
+			ImGui::Begin("Main GUI");
 
-		ImGui::Render();
-		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+			ImGui::ShowStyleSelector("LAbel");
+			ImGui::Checkbox("Emable AI", &ENABLE_AI);
+			ImGui::Checkbox("Player White", &PLAYER_WHITE);
+
+			ImGui::End();
+
+			ImGui::Render();
+			ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+		}
+
+
 
 		SDL_RenderPresent(RENDERER);
 	}

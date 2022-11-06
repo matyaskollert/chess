@@ -130,10 +130,12 @@ void GameBoard::handleWhiteMove(int& row, int& col)
 	}
 	//if the king moved, update special variable
 	if (m_selectedFigure == 'K') {
+		m_whiteLongCastle = false;
+		m_whiteShortCastle = false;
 		m_whiteKingSquare = { row, col };
 	}
 	//if the king or rook moved, update castling possibilities
-	if (m_selectedFigure == 'R' || m_selectedFigure == 'K') {
+	if (m_selectedFigure == 'R') {
 		if (m_selectedSquare.col == 0) {
 			m_whiteLongCastle = false;
 		}
@@ -182,9 +184,11 @@ void GameBoard::handleBlackMove(int& row, int& col)
 		return;
 	}
 	if (m_selectedFigure == 'k') {
+		m_blackLongCastle = false;
+		m_blackShortCastle = false;
 		m_blackKingSquare = { row, col };
 	}
-	if (m_selectedFigure == 'r' || m_selectedFigure == 'k') {
+	if (m_selectedFigure == 'r') {
 		if (m_selectedSquare.col == 0) {
 			m_blackLongCastle = false;
 		}
