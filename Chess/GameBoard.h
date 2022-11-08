@@ -66,13 +66,13 @@ private:
 	void handleBlackMove(int& row, int& col);
 	void getValidMoves(bool white);
 	void resetValidMoves();
-	bool checkValidMove(int row, int col);
-	bool pawnValidMove(int row, int col, bool white);
-	bool knightValidMove(int row, int col, bool white);
-	bool bishopValidMove(int row, int col, bool white);
-	bool rookValidMove(int row, int col, bool white);
-	bool queenValidMove(int row, int col, bool white);
-	bool kingValidMove(int row, int col, bool white);
+	bool checkValidMove(const int& row, const int& col);
+	bool pawnValidMove(const int& row, const int& col, bool white);
+	bool knightValidMove(const int& row, const int& col, bool white);
+	bool bishopValidMove(const int& row, const int& col, bool white);
+	bool rookValidMove(const int& row, const int& col, bool white);
+	bool queenValidMove(const int& row, const int& col, bool white);
+	bool kingValidMove(const int& row, const int& col, bool white);
 	//check if the opposite king is in check
 	int checkCheck(bool white);
 };

@@ -44,12 +44,11 @@ PairPair GameEngine::getBestMove() {
 	return m_bestMove;
 }
 
-void GameEngine::calculateEvaluation(std::array<std::array<char, 8>, 8> board) {
+int GameEngine::calculateEvaluation(const GameBoard& board) {
 	m_evaluation = 0;
-	char piece;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			piece = board[i][j];
+			const char& piece = board.m_boardArray[i][j];
 			m_evaluation += convertPieceToValue(piece);
 			switch (piece) {
 			case 'P':
@@ -93,9 +92,10 @@ void GameEngine::calculateEvaluation(std::array<std::array<char, 8>, 8> board) {
 			}
 		}
 	}
+	return m_evaluation;
 }
 
-int  GameEngine::convertPieceToValue(char piece) {
+int  GameEngine::convertPieceToValue(const char& piece) {
 	switch (piece) {
 	case 'P':
 		return 100;
@@ -162,8 +162,7 @@ PairPair GameEngine::negaMaxRoot(int depth, GameBoard& board, bool white)
 int GameEngine::negaMax(int depth, GameBoard& board, bool white) {
 	int i = white ? 1 : -1;
 	if (depth == 0) {
-		calculateEvaluation(board.m_boardArray);
-		return i * m_evaluation;
+		return i * calculateEvaluation(board);
 	}
 	int max = -999999999;
 	PairPair pieceMax{};
@@ -195,11 +194,13 @@ int GameEngine::negaMax(int depth, GameBoard& board, bool white) {
 PairPair GameEngine::alphaBetaRoot(int depth, GameBoard& board, bool white) {
 	int alpha = -999999999, beta = 999999999, max = -999999999;
 	PairPair ret{};
-	for (int row = 0; row < 8; row++) {
-		for (int col = 0; col < 8; col++) {
+	int row, col, moveRow, moveCol;
+
+	for (row = 0; row < 8; row++) {
+		for (col = 0; col < 8; col++) {
 			if (board.m_boardArray[row][col] != 0) {
-				for (int moveRow = 0; moveRow < 8; moveRow++) {
-					for (int moveCol = 0; moveCol < 8; moveCol++) {
+				for (moveRow = 0; moveRow < 8; moveRow++) {
+					for (moveCol = 0; moveCol < 8; moveCol++) {
 						if (board.m_validMoveArray[row][col][moveRow][moveCol]) {
 							GameBoard b = { board };
 							b.checkForInput(row, col);
@@ -228,16 +229,15 @@ PairPair GameEngine::alphaBetaRoot(int depth, GameBoard& board, bool white) {
 }
 
 int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, int beta) {
-	int i = white ? 1 : -1;
 	if (depth == 0) {
 		return quiesce(board, white, alpha, beta);
 	}
-	int max = -999999999;
-	for (int row = 0; row < 8; row++) {
-		for (int col = 0; col < 8; col++) {
+	int max = -999999999, row, col, moveRow, moveCol;
+	for (row = 0; row < 8; row++) {
+		for (col = 0; col < 8; col++) {
 			if (board.m_boardArray[row][col] != 0) {
-				for (int moveRow = 0; moveRow < 8; moveRow++) {
-					for (int moveCol = 0; moveCol < 8; moveCol++) {
+				for (moveRow = 0; moveRow < 8; moveRow++) {
+					for (moveCol = 0; moveCol < 8; moveCol++) {
 						if (board.m_validMoveArray[row][col][moveRow][moveCol]) {
 							GameBoard b = { board };
 							b.checkForInput(row, col);
@@ -263,8 +263,7 @@ int GameEngine::alphaBeta(int depth, GameBoard& board, bool white, int alpha, in
 
 int GameEngine::quiesce(GameBoard& board, bool white, int alpha, int beta) {
 	const int i = white ? 1 : -1;
-	calculateEvaluation(board.m_boardArray);
-	const int stand_pat = i * m_evaluation;
+	const int stand_pat = i * calculateEvaluation(board);
 
 	if (stand_pat >= beta) {
 		return beta;
@@ -273,12 +272,14 @@ int GameEngine::quiesce(GameBoard& board, bool white, int alpha, int beta) {
 		alpha = stand_pat;
 	}
 
-	for (int row = 0; row < 8; row++) {
-		for (int col = 0; col < 8; col++) {
-			if (board.m_boardArray[row][col] != 0) {
-				for (int moveRow = 0; moveRow < 8; moveRow++) {
-					for (int moveCol = 0; moveCol < 8; moveCol++) {
-						if (((white && std::islower(board.m_boardArray[moveRow][moveCol])) || (!white && std::isupper(board.m_boardArray[moveRow][moveCol]))) && board.m_validMoveArray[row][col][moveRow][moveCol]) {
+	int row, col, moveRow, moveCol;
+
+	for (row = 0; row < 8; row++) {
+		for (col = 0; col < 8; col++) {
+			if ((white && std::isupper(board.m_boardArray[row][col])) || (!white && std::islower(board.m_boardArray[row][col]))) {
+				for (moveRow = 0; moveRow < 8; moveRow++) {
+					for (moveCol = 0; moveCol < 8; moveCol++) {
+						if (board.m_validMoveArray[row][col][moveRow][moveCol] && ((white && std::islower(board.m_boardArray[moveRow][moveCol])) || (!white && std::isupper(board.m_boardArray[moveRow][moveCol])))) {
 							GameBoard b = { board };
 							b.checkForInput(row, col);
 							b.checkForInput(moveRow, moveCol);

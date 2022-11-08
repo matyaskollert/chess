@@ -13,7 +13,7 @@ public:
 	PairPair getBestMove();
 	bool ready = false;
 private:
-	int m_evaluation;
+	int m_evaluation = 0;
 	PairPair m_bestMove = {};
 
 	std::array<std::array<int, 8>, 8> pawnWeights = { {
@@ -102,8 +102,8 @@ private:
 
 	int quiesce(GameBoard& board, bool white, int alpha, int beta);
 
-	void calculateEvaluation(std::array<std::array<char, 8>, 8> board);
+	int calculateEvaluation(const GameBoard& board);
 
-	int convertPieceToValue(char piece);
+	int convertPieceToValue(const char& piece);
 };
 

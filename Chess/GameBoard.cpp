@@ -264,9 +264,6 @@ void GameBoard::getValidMoves(bool white)
 			}
 		}
 	}
-	/*if (checkMate) {
-		std::cout << "CHECKMATE\n";
-	}*/
 }
 
 void GameBoard::resetValidMoves()
@@ -293,7 +290,7 @@ void GameBoard::resetValidMoves()
 	} };
 }
 
-bool GameBoard::checkValidMove(int targetRow, int targetCol)
+bool GameBoard::checkValidMove(const int& targetRow, const int& targetCol)
 {
 	if (m_pickedSquare.col == targetCol && m_pickedSquare.row == targetRow) {
 		return false;
@@ -337,7 +334,7 @@ bool GameBoard::checkValidMove(int targetRow, int targetCol)
 
 }
 
-bool GameBoard::pawnValidMove(int row, int col, bool white)
+bool GameBoard::pawnValidMove(const int& row, const int& col, bool white)
 {
 	if (!white) {
 		if (m_pickedSquare.row == 6 && m_pickedSquare.col == col && row == (m_pickedSquare.row - 2) && m_boardArray[m_pickedSquare.row - 1][col] == 0 && m_boardArray[row][col] == 0) {
@@ -373,7 +370,7 @@ bool GameBoard::pawnValidMove(int row, int col, bool white)
 	}
 }
 
-bool GameBoard::knightValidMove(int row, int col, bool white)
+bool GameBoard::knightValidMove(const int& row, const int& col, bool white)
 {
 
 	if (row == m_pickedSquare.row + 2 || row == m_pickedSquare.row - 2) {
@@ -392,7 +389,7 @@ bool GameBoard::knightValidMove(int row, int col, bool white)
 	return true;
 }
 
-bool GameBoard::bishopValidMove(int row, int col, bool white)
+bool GameBoard::bishopValidMove(const int& row, const int& col, bool white)
 {
 
 	int rowD = (m_pickedSquare.row - row) < 0 ? 1 : -1;
@@ -411,7 +408,7 @@ bool GameBoard::bishopValidMove(int row, int col, bool white)
 	return true;
 }
 
-bool GameBoard::rookValidMove(int row, int col, bool white)
+bool GameBoard::rookValidMove(const int& row, const int& col, bool white)
 {
 	int D, inc;
 
@@ -440,12 +437,12 @@ bool GameBoard::rookValidMove(int row, int col, bool white)
 	return true;
 }
 
-bool GameBoard::queenValidMove(int row, int col, bool white)
+bool GameBoard::queenValidMove(const int& row, const int& col, bool white)
 {
 	return bishopValidMove(row, col, white) || rookValidMove(row, col, white);
 }
 
-bool GameBoard::kingValidMove(int row, int col, bool white)
+bool GameBoard::kingValidMove(const int& row, const int& col, bool white)
 {
 	if (m_pickedSquare.row == row)
 	{
