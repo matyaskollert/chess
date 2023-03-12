@@ -65,6 +65,8 @@ private:
 	void handleWhiteMove(int& row, int& col);
 	void handleBlackMove(int& row, int& col);
 	void getValidMoves(bool white);
+	char promotion(int row);
+	void sameSquare(int row, int col);
 	void resetValidMoves();
 	bool checkValidMove(const int& row, const int& col);
 	bool pawnValidMove(const int& row, const int& col, bool white);
